@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Fast Foot Customers Rule!</title>
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function() {
+			$('#transactions').dataTable();
+		});
+	</script>
+</head>
+<body>
+	<section layout:fragment="content">
+		<table class="table table-condensed table-hover" id="transactions">
+			<tr>
+				<th>Customer Id</th>
+				<th>Transaction Date</th>
+				<th>Product Id</th>
+				<th>Quantity</th>
+				<th>Retail Price</th>
+				<th>Order Status</th>
+				<th>Mark Up</th>
+			</tr>
+			<tfoot>
+			<tr>
+				<th>Customer Id</th>
+				<th>Transaction Date</th>
+				<th>Product Id</th>
+				<th>Quantity</th>
+				<th>Retail Price</th>
+				<th>Order Status</th>
+				<th>Mark Up</th>
+			</tr>
+		</tfoot>
+			<tbody>
+			<tr th:each="transaction : ${transactions}">
+				<td th:text="${transaction.customerId}">Brand</td>
+				<td th:text="${transaction.transactionDate}">Type</td>
+				<td th:text="${transaction.productId}">Gender</td>
+				<td th:text="${transaction.quantity}">Color</td>
+				<td th:text="${transaction.retailPrice}">Size</td>
+				<td th:text="${transaction.orderStatus}">Stock On Hand</td>
+				<td th:text="${transaction.markUp}">Whole Sale Cost</td>
+			</tr>
+			</tbody>
+		</table>
+	</section>
+</body>
+</html>
