@@ -1,0 +1,19 @@
+<project name="MyProject" basedir=".">
+	<target name="package">
+		<copy file="src/main/resources/fastfootshoes-gf-cache.xml" todir="./grid/conf" overwrite="true"/>
+		<copy file="src/main/resources/fastfootshoes-spring-cache.xml" todir="./grid/conf" overwrite="true"/>
+		<copy file="src/main/resources/simple-gf-cache.xml" todir="./grid/conf" overwrite="true"/>
+		<copy file="src/main/resources/simple-spring-cache.xml" todir="./grid/conf" overwrite="true"/>
+		<copy file="src/main/resources/gemfire.properties" todir="./grid/conf" overwrite="true"/>
+		<copy file="../FastFootShoeModel/target/FastFootShoeModel-0.0.1-SNAPSHOT.jar" todir="./grid/lib" overwrite="true"/>
+		<copy file="../FastFootShoeServerSide/target/FastFootShoeServerSide-0.0.1-SNAPSHOT.jar" todir="./grid/lib" overwrite="true"/>
+	</target>
+	<target name="deploy_vm" depends="package">
+		  <scp todir="gemfire:gemfire@172.16.6.20:/home/gemfire/gemfire/grid/" trust="true">
+		    <fileset dir="./grid/"/>
+		  </scp>
+		  <scp todir="gemfire:gemfire@172.16.6.21:/home/gemfire/gemfire/grid/" trust="true">
+		    <fileset dir="./grid/"/>
+		  </scp>
+	</target>
+</project> 
