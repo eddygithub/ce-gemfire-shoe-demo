@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:gfe="http://www.springframework.org/schema/gemfire"
+	xmlns:gfe-data="http://www.springframework.org/schema/data/gemfire"
+	xmlns:repo="http://www.springframework.org/schema/data/repository"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/data/gemfire 
+	http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.springframework.org/schema/gemfire 
+	http://www.springframework.org/schema/gemfire/spring-gemfire.xsd
+	http://www.springframework.org/schema/data/repository
+    http://www.springframework.org/schema/data/repository/spring-repository.xsd">
+    
+    <util:properties id="peerCacheConfigurationSettings">
+		<prop key="name">springGemFirePeerCache</prop>
+		<prop key="locators">localhost[11235]</prop>
+		<prop key="log-level">config</prop>
+		<prop key="mcast-port">0</prop>
+		<prop key="start-locator">localhost[11235]</prop>
+	</util:properties>
+	
+	<bean id="pdxSerializer" class="com.gemstone.gemfire.pdx.ReflectionBasedAutoSerializer">
+		<constructor-arg value="io.pivotal.ce.gemfire.fastfootshoes.model.*"/>
+	</bean>
+
+	<gfe:cache pdx-serializer-ref="pdxSerializer" properties-ref="peerCacheConfigurationSettings" />
+	
+	<gfe:cache-server auto-startup="true" cache-ref="gemfireCache" />
+			
+	<gfe:replicated-region id="Alert"/>	
+	<gfe:replicated-region id="Customer" name="Customer" persistent="false"/>
+	<gfe:partitioned-region id="Transaction" name="Transaction" persistent="false"/>
+	<gfe:replicated-region id="MarkUp" name="MarkUp" persistent="false"/>
+	<gfe:replicated-region id="Product" name="Product" persistent="false"/>
+	
+	<gfe-data:repositories base-package="io.pivotal.ce.gemfire.fastfootshoes.repositories" />
+	<context:component-scan base-package="io.pivotal.ce.gemfire.fastfootshoes"/>
+	<gfe:annotation-driven />
+
+		
+</beans>
