@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +54,7 @@ public class CacheLoader {
 	@Autowired
 	AlertRepository alertRepository;
 	
-	
-	
+	private long startTime;
 	
 	public boolean checkIfHistoricIsThere() {
 		return false;
@@ -62,6 +62,8 @@ public class CacheLoader {
 	
 	//need to load data
 	public void loadData() {
+		
+		startTime = new Date().getTime();
 		
 		//load the customers
 		String[] nameMapping = new String[]{"city","birthday","id","name", "emailAddress"};
@@ -117,6 +119,9 @@ public class CacheLoader {
         for (Alert alert : alertRepository.findAll()) {
         	alertRepository.delete(alert);
         }
+        long endTime = new Date().getTime();
+		long timeToLoad = endTime - startTime;
+		activityLog.add("Total Loading Time: " + timeToLoad/1000 + " seconds");
         closeBeanReader();
 		writeOutLogs();
 	}
@@ -150,10 +155,15 @@ public class CacheLoader {
         	initalizeBeanReader(file); 
             Customer cust;
             int custCount = 0;
+            List<Customer> customerPuts = new ArrayList<Customer>();
             try {
 				while ((cust = beanReader.read(Customer.class, nameMapping,processors)) != null) {
-					customerRepository.save(cust);
+					customerPuts.add(cust);
 					custCount++;
+					if (customerPuts.size() % 10 == 0) {
+						customerRepository.save(customerPuts);
+						customerPuts.clear();
+					}
 				}
 			} catch (IOException e) {
 				errorLog.add(e.toString());
@@ -167,11 +177,16 @@ public class CacheLoader {
 			System.out.println("Started loading the products");
         	initalizeBeanReader(file);
             Product prod;
+            List<Product> productPuts = new ArrayList<Product>();
             int prodCount = 0;
             try {
 				while ((prod = beanReader.read(Product.class, nameMapping,processors)) != null) {
-					productRepository.save(prod);
+					productPuts.add(prod);
 					prodCount++;
+					if (productPuts.size() % 10 == 0) {
+						productRepository.save(productPuts);
+						productPuts.clear();
+					}
 				}
 			} catch (IOException e) {
 				errorLog.add(e.toString());
@@ -182,12 +197,17 @@ public class CacheLoader {
 	private void loadTransactions(String file, String[] nameMapping, CellProcessor[] processors) {
 				System.out.println("Started loading the transactions");
 	            initalizeBeanReader(file);
+	            List<Transaction> transactionPuts = new ArrayList<Transaction>();
 	            Transaction txn;
 	            int txnCount = 0;
 	            try {
 					while ((txn = beanReader.read(Transaction.class, nameMapping,processors)) != null) {
-						transactionRepository.save(txn);
+						transactionPuts.add(txn);
 						txnCount++;
+						if (transactionPuts.size() % 10 == 0) {
+							transactionRepository.save(transactionPuts);
+							transactionPuts.clear();
+						}
 					}
 				} catch (IOException e) {
 					errorLog.add(e.toString());
@@ -199,11 +219,13 @@ public class CacheLoader {
 			System.out.println("Started loading the mark ups");
             initalizeBeanReader(file);
             MarkUp markUp;
+            List<MarkUp> markUpPuts = new ArrayList<MarkUp>();
             int markUpCount = 0;
             try {
 				while ((markUp = beanReader.read(MarkUp.class, nameMapping,processors)) != null) {
-					markupRepository.save(markUp);
+					markUpPuts.add(markUp);
 					markUpCount++;
+					markupRepository.save(markUpPuts);
 				}
 			} catch (IOException e) {
 				errorLog.add(e.toString());
