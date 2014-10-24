@@ -51,6 +51,8 @@ public class CacheLoader {
 
 	@Autowired
 	private AlertRepository alertRespository;
+	
+	private List<Transaction> transactionPuts = new ArrayList<Transaction>();
 
 	public void loadData() {
 		// load the current transactions
@@ -209,8 +211,11 @@ public class CacheLoader {
 		txn.setRetailPrice(product.getWholeSalePrice() * markupValue);
 		txn.setTransactionDate(new Date());
 		// commit the transaction
-		transactionRepository.save(txn);
-		System.out.println("Adding Transaction: " + txn.toString());
+		transactionPuts.add(txn);
+		if (transactionPuts.size() % 10 == 0) {
+			transactionRepository.save(transactionPuts);
+			transactionPuts.clear();
+		}
 	}
 
 }
