@@ -52,15 +52,14 @@ public class CustomerController {
 
 	private void populateModel(Model model, Customer cust) {
 		Collection<Transaction> transactions = transactionRepository.findByCustomer(cust.getId());
-		int txn_count = transactionDataService.getTransactionCount(cust);
-		String discount_level = transactionDataService.getMarkUpName(txn_count);
+		long[] results = transactionDataService.getTransactionCount(cust);
+		String discount_level = transactionDataService.getMarkUpName(results[1]);
 		model.addAttribute("cust", cust);
 		model.addAttribute("transactions", transactions);
-		model.addAttribute("transaction_count", txn_count);
+		model.addAttribute("transaction_count", results[1]);
 		model.addAttribute("discount_level", discount_level);
+		model.addAttribute("discountprocessTime", results[0]);
 	}
-	
-	
 	
 	@RequestMapping(value="/customerDetails", method = RequestMethod.GET)
 	public String customerDetails(@RequestParam(value="id", required=true) String id,

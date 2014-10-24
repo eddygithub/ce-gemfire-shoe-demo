@@ -53,7 +53,8 @@ public class TransactionDataService {
 				System.out.println("Got the customer: " + customer);
 				if (product != null && product.getStockOnHand() - quantity > 0) {
 					//get the valid transaction count using the function
-					int txn_count = getTransactionCount(customer);
+					long[] results = getTransactionCount(customer);
+					long txn_count = results[1];
 					//determine the markup
 					double markUpValue = getMarkUp(txn_count);
 					writeTransaction(customerId, productId, quantity, product, markUpValue);
@@ -79,15 +80,21 @@ public class TransactionDataService {
 	 * @param customer
 	 * @return
 	 */
-	public int getTransactionCount(Customer customer) {
+	public long[] getTransactionCount(Customer customer) {
 		System.out.println("Counting Transactions for: " + customer);
+		long[] results = new long[2];
+		long start = new Date().getTime();
 		List<Integer> txn_count_result = orderCounterCaller.countTransactions(customer);
 		int txn_count = 0;
 		//tally up the counts from each server
 		for (Integer i : txn_count_result) {
 			txn_count = txn_count + i.intValue();
 		}
-		return txn_count;
+		long end = new Date().getTime();
+		long difference = end - start;
+		results[0] = difference;
+		results[1] = txn_count;
+		return results;
 		
 	}
 	
@@ -96,7 +103,7 @@ public class TransactionDataService {
 	 * @param txn_count
 	 * @return
 	 */
-	public double getMarkUp(int txn_count) {
+	public double getMarkUp(long txn_count) {
 		double txn_markup = 0;
 		for (MarkUp markup : markUpRepo.findAll()) {
 			if (txn_count >= markup.getQualifyingTransactionCountFloor() && txn_count <= markup.getQualifyingTransactionCountCeiling()) {
@@ -111,7 +118,7 @@ public class TransactionDataService {
 	 * @param txn_count
 	 * @return
 	 */
-	public String getMarkUpName(int txn_count) {
+	public String getMarkUpName(long txn_count) {
 		String name = "None";
 		for (MarkUp markup : markUpRepo.findAll()) {
 			if (txn_count >= markup.getQualifyingTransactionCountFloor() && txn_count <= markup.getQualifyingTransactionCountCeiling()) {
