@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/gemfire http://www.springframework.org/schema/gemfire/spring-gemfire.xsd
 		http://www.springframework.org/schema/data/gemfire http://www.springframework.org/schema/data/gemfire/spring-data-gemfire.xsd">
 
-	<gfe:cache id="gemfireCache" />
+	<gfe:cache id="gemfireCache"  copy-on-read="true" />
 
 	<!-- configure the cache and set the port to 0 for it picks the first available port -->
 	<gfe:cache-server port="0" cache-ref="gemfireCache" />

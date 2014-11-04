@@ -1,0 +1,116 @@
+#Make Sure that the VM is in Nat mode, if in Bridge mode this will not work
+
+#Get the relevant IP details from fusion
+vi /Library/Preferences/VMware\ Fusion/vmnet8/dhcpd.conf
+
+#Sample of dhcpd.conf
+subnet 172.16.6.0 netmask 255.255.255.0 {
+        range 172.16.6.128 172.16.6.254;
+        option broadcast-address 172.16.6.255;
+        option domain-name-servers 172.16.6.2;
+        option domain-name localdomain;
+        default-lease-time 1800;                # default is 30 minutes
+        max-lease-time 7200;                    # default is 2 hours
+        option netbios-name-servers 172.16.6.2;
+        option routers 172.16.6.2;
+}
+host vmnet8 {
+        hardware ethernet 00:50:56:C0:00:08;
+        fixed-address 172.16.6.1;
+        option domain-name-servers 0.0.0.0;
+        option domain-name "";
+        option routers 0.0.0.0;
+}
+
+#Reference for static IP reference here
+http://wiki.centos.org/FAQ/CentOS6
+
+
+#Steps on the Centos VM
+
+#Log in as root
+su -
+
+#Stop the NetworkManager
+service NetworkManager stop
+
+#Make sure it does not start up again - it can overwrite your files
+chkconfig NetworkManager off
+
+#Make sure networking is on
+chkconfig network on
+
+#Edit the network file
+vi /etc/sysconfig/network
+
+#Sample file
+HOSTNAME=localhost
+#This comes from dhcpd.conf
+DNS1=8.8.8.8
+#This is googles
+DNS2=8.8.8.4
+
+#Figure out the network interface in use, this will also give you the hardware address
+ifconfig
+
+#Edit the interface config 
+vi /etc/sysconfig/network-scripts/ifcfg-eth0
+
+
+#Sample Config
+DEVICE=eth0
+#figure this out by running a ifconfig - Address will be listed
+HWADDR=00:0C:29:41:EF:90
+NM_CONTROLLED="no"
+ONBOOT=yes
+BOOTPROTO=static
+IPADDR=172.16.6.20
+NETMASK=255.255.255.0
+GATEWAY=172.16.6.2
+
+#Edit the resolve file
+vi /etc/resolv.conf 
+
+#Sample Config
+
+#This comes from dhcpd.conf
+nameserver 172.16.6.2
+#This is googles
+nameserver 8.8.8.8
+
+
+#Restart Networking
+[root@localhost ~]# service network restart
+Shutting down interface eth0:                              [  OK  ]
+Shutting down loopback interface:                          [  OK  ]
+Bringing up loopback interface:                            [  OK  ]
+Bringing up interface eth0:  Determining if ip address 192.168.1.140 is already in use for device eth0...
+                                                           [  OK  ]
+
+#Handy Commands and Tips
+
+#remove networking rules - this blows away all interfaces (all ifcfg-* files), only do this if things are totally jacked
+rm -f /etc/udev/rules.d/70-persistent-net.rules
+
+#Take interface up and down
+sudo ip link set eth1 up (down)
+
+# restart networking - if service call does not work
+sudo /etc/init.d/network restart
+
+#check the device being used
+ifconfig -a
+
+#Main Centos Doc
+http://wiki.centos.org/FAQ/CentOS6#head-b67e85d98f0e9f1b599358105c551632c6ff7c90
+
+
+Wireshark Install:
+Install the following library
+yum install gtk2
+
+Install Wireshark:
+yum install wireshark-gnome
+
+Run Wireshark:
+sudo wireshark

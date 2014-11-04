@@ -1,0 +1,1 @@
+java -jar FastFootShoesRetail-1.1.8.RELEASE.jar
